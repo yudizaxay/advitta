@@ -122,7 +122,7 @@ function loadDB() {
 }
 function saveDB() { try { localStorage.setItem(DBKEY, JSON.stringify(DB)); } catch { /* storage unavailable */ } }
 function resetDB() { try { Object.keys(localStorage).filter(k => k.startsWith('advitta.')).forEach(k => localStorage.removeItem(k)); } catch { /* ignore */ } }
-const uid = p => p + (DB.seq++);
+const uid = p => p + (DB.seq++) + Math.random().toString(36).slice(2, 6); /* random tail: tabs and iframes each count seq on their own copy */
 loadDB();
 
 /* ───────── queries ───────── */
