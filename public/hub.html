@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Advitta Demo</title>
+<link rel="icon" href="/icon.svg">
+<meta name="theme-color" content="#5B2D8E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1B1726;--ink2:#6B6677;--line:#E4DFEC;--surface:#F6F4F9;--brand:#5B2D8E;--brand2:#47216F;--font:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);color:var(--ink);background:#ECE8F2;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+header{height:56px;display:flex;align-items:center;gap:16px;padding:0 20px;background:#fff;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:16px;letter-spacing:-.01em;margin-right:auto}
+.brand img{width:28px;height:28px}
+.seg{display:inline-flex;background:var(--surface);border-radius:12px;padding:3px}
+.seg button{height:34px;padding:0 16px;border-radius:9px;font-weight:600;font-size:14px;color:var(--ink2);white-space:nowrap}
+.seg button.on{background:#fff;color:var(--brand);box-shadow:0 1px 3px #0002}
+.reset{margin-left:auto;font-size:13px;color:var(--ink2);text-decoration:underline;text-underline-offset:3px;padding:6px}
+.reset:hover{color:var(--ink)}
+header .seg{margin:0 auto}
+.panes{height:calc(100dvh - 56px);display:flex;gap:16px;padding:0}
+.pane{display:none;flex-direction:column;min-width:0;flex:1}
+.pane.show{display:flex}
+.pane h2{display:none;font-size:13px;font-weight:700;color:var(--ink2);padding:12px 4px 0 6px}
+.pane iframe{flex:1;width:100%;border:0;background:transparent;min-height:0}
+.pane.admin iframe{background:#fff}
+/* all three */
+.all{padding:0 16px 16px}
+.all .pane h2{display:block}
+.all .pane.ph{flex:0 0 clamp(340px,27vw,440px);position:relative;overflow:hidden}
+.all .pane.ph iframe{position:absolute;flex:none;width:820px;left:50%;margin-left:-410px;top:34px;height:calc(100% - 34px)}
+.all .pane.admin{flex:1;min-width:560px}
+.all .pane.admin iframe{border-radius:18px;border:1px solid var(--line);box-shadow:0 20px 50px -30px rgba(40,20,70,.4)}
+@media (max-width:1279px){.seg .all-b{display:none}}
+@media (max-width:760px){
+  header{height:52px;padding:0 10px;gap:8px}
+  .brand span{display:none}
+  .seg button{padding:0 11px;font-size:13px}
+  .reset{font-size:12px;white-space:nowrap}.reset .lg{display:none}
+  .panes{height:calc(100dvh - 52px)}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><img src="/icon.svg" alt=""><span>Advitta</span></div>
+  <div class="seg" id="seg">
+    <button data-m="ent">Entrepreneur</button>
+    <button data-m="inv">Investor</button>
+    <button data-m="admin">Admin</button>
+    <button data-m="all" class="all-b">All</button>
+  </div>
+  <button class="reset" id="reset">Reset<span class="lg"> demo</span></button>
+</header>
+<main class="panes" id="panes">
+  <section class="pane ph" data-p="ent"><h2>Entrepreneur</h2></section>
+  <section class="pane ph" data-p="inv"><h2>Investor</h2></section>
+  <section class="pane admin" data-p="admin"><h2>Admin</h2></section>
+</main>
+<script src="/db.js"></script>
+<script>
+/* db.js seeds the shared database first, so the three apps start from the same data. */
+const SRC = { ent: '/app?as=ent&embed=1', inv: '/app?as=inv&embed=1', admin: '/admin?embed=1' };
+const panes = $('#panes');
+$$('.pane').forEach(p => { const f = document.createElement('iframe'); f.src = SRC[p.dataset.p]; f.title = p.dataset.p; p.appendChild(f); });
+const wide = () => innerWidth >= 1280;
+let mode = (() => { try { return sessionStorage.getItem('advitta.hub'); } catch { return null; } })() || (wide() ? 'all' : 'ent');
+function show(m) {
+  if (m === 'all' && !wide()) m = 'ent';
+  mode = m; try { sessionStorage.setItem('advitta.hub', m); } catch { /* ignore */ }
+  panes.classList.toggle('all', m === 'all');
+  $$('.pane').forEach(p => p.classList.toggle('show', m === 'all' || p.dataset.p === m));
+  $$('#seg button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+}
+$('#seg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(b.dataset.m); });
+$('#reset').addEventListener('click', () => { resetDB(); location.reload(); });
+addEventListener('resize', () => show(mode));
+show(mode);
+</script>
+</body>
+</html>

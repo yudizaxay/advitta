@@ -1,0 +1,8 @@
+{
+  "name": "advitta-mvp-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Clickable web demo of the Advitta mobile app",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
